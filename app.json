@@ -1,0 +1,65 @@
+{
+  "expo": {
+    "name": "Trade Fair Wala",
+    "slug": "trade-fair-wala",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "scheme": "tradefairwala",
+    "userInterfaceStyle": "light",
+    "newArchEnabled": true,
+    "splash": {
+      "image": "./assets/tfw-splash-brand.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.tradefairwala.app"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#ffffff"
+      },
+      "package": "com.tradefairwala.app",
+      "softwareKeyboardLayoutMode": "resize"
+    },
+    "plugins": [
+      "expo-router",
+      [
+        "expo-splash-screen",
+        {
+          "backgroundColor": "#ffffff",
+          "image": "./assets/tfw-splash-brand.png",
+          "imageWidth": 280,
+          "ios": {
+            "backgroundColor": "#ffffff"
+          },
+          "android": {
+            "backgroundColor": "#ffffff"
+          }
+        }
+      ],
+      "@react-native-community/datetimepicker",
+      "expo-asset",
+      "expo-secure-store",
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Allow Trade Fair Wala to scan visitor QR passes at the gate."
+        }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Allow Trade Fair Wala to upload profile and document photos."
+        }
+      ]
+    ],
+    "experiments": {
+      "typedRoutes": true,
+      "tsconfigPaths": true
+    }
+  }
+}

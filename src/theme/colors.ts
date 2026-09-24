@@ -1,0 +1,22 @@
+export const colors = {
+  navy: "#0a1f3d",
+  navyLight: "#132d52",
+  emerald: "#10b981",
+  emeraldBright: "#2dd4bf",
+  emeraldDark: "#059669",
+  /** BookMyShow-style primary CTA accent */
+  cta: "#e23744",
+  ctaDark: "#c4242f",
+  background: "#f4f7f6",
+  surface: "#ffffff",
+  text: "#18181b",
+  textMuted: "#64748b",
+  textOnDark: "#f8fafc",
+  textOnDarkMuted: "rgba(248, 250, 252, 0.75)",
+  border: "#e2e8f0",
+  cardShadow: "rgba(10, 31, 61, 0.12)",
+  chipBorder: "rgba(255, 255, 255, 0.35)",
+  bannerNavy: "#0f2847",
+  bannerGreen: "#0d3d2e",
+  bannerBrown: "#3d2a1a",
+} as const;
