@@ -27,9 +27,28 @@ type Plan = {
   description: string | null;
   priceMinor: string;
   durationDays: number;
+  limitations?: Record<string, unknown> | null;
+  stallBookingCommissionBps?: number;
 };
 
-type MeSub = { active: boolean; planName?: string; endsAt?: string };
+type MeSub = {
+  active: boolean;
+  planName?: string;
+  priceMinor?: string;
+  endsAt?: string;
+  limitations?: Record<string, unknown> | null;
+  stallBookingCommissionBps?: number;
+};
+
+const PLAN_LIMIT_KEYS = ["maxPublishedEvents", "maxEventsTotal", "maxPublishedServices", "maxServicesTotal"] as const;
+
+/** Missing limit means unlimited. */
+function planLimit(limitations: Record<string, unknown> | null | undefined, key: string): number | null {
+  const v = limitations?.[key];
+  if (typeof v === "number" && Number.isFinite(v) && v >= 0) return Math.floor(v);
+  if (typeof v === "string" && /^\d+$/.test(v)) return Number(v);
+  return null;
+}
 
 type ReferralWallet = {
   code: string;
@@ -96,7 +115,30 @@ export function SubscriptionPlansScreen({
       .finally(() => setLoading(false));
   }, [load]);
 
+  function currentPriceMinor() {
+    if (!current?.active) return 0;
+    if (current.priceMinor != null && current.priceMinor !== "") return Number(current.priceMinor);
+    const match = plans.find((p) => p.name === current.planName);
+    return match ? Number(match.priceMinor) : 0;
+  }
+
+  function isLowerThanCurrent(plan: Plan) {
+    const curPrice = currentPriceMinor();
+    if (!current?.active || curPrice <= 0 || current.planName === plan.name) return false;
+    if (Number(plan.priceMinor) <= curPrice) return true;
+    if ((plan.stallBookingCommissionBps ?? 0) > (current.stallBookingCommissionBps ?? 0)) return true;
+    return PLAN_LIMIT_KEYS.some((k) => {
+      const next = planLimit(plan.limitations, k);
+      const cur = planLimit(current.limitations, k);
+      return next != null && (cur == null || next < cur);
+    });
+  }
+
   async function buyPlan(plan: Plan) {
+    if (isLowerThanCurrent(plan)) {
+      Alert.alert("Plan stays active", "A lower plan cannot replace your current subscription.");
+      return;
+    }
     if (requireOrganizerKyc && !kycOk) {
       Alert.alert("KYC required", "Complete organizer KYC before subscribing.", [
         { text: "Go to KYC", onPress: () => router.push("/dashboard/organizer/kyc" as never) },
@@ -218,7 +260,9 @@ export function SubscriptionPlansScreen({
           keyExtractor={(p) => String(p.id)}
           scrollEnabled={false}
           ListEmptyComponent={<EmptyState title="No plans available." compact />}
-          renderItem={({ item }) => (
+          renderItem={({ item }) => {
+            const downgrade = isLowerThanCurrent(item);
+            return (
             <View style={styles.planCard}>
               <Text style={styles.planName}>{item.name}</Text>
               <Text style={styles.planPrice}>₹{(Number(item.priceMinor) / 100).toFixed(0)}</Text>
@@ -227,14 +271,17 @@ export function SubscriptionPlansScreen({
               ) : null}
               <Text style={styles.planDur}>{item.durationDays} days</Text>
               <PrimaryButton
-                label={busyPlanId === item.id ? "Processing…" : "Subscribe"}
+                label={
+                  busyPlanId === item.id ? "Processing…" : downgrade ? "Lower plan unavailable" : "Subscribe"
+                }
                 variant="cta"
-                disabled={busyPlanId !== null}
+                disabled={busyPlanId !== null || downgrade}
                 onPress={() => void buyPlan(item)}
                 style={{ marginTop: spacing.sm }}
               />
             </View>
-          )}
+            );
+          }}
         />
     </ScreenShell>
   );

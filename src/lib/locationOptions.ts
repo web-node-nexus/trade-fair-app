@@ -1,78 +1,11 @@
+import indiaCities from "./indiaCities.json";
+
 export const COUNTRIES = ["India", "United Arab Emirates", "Singapore", "United States", "United Kingdom"] as const;
 
-export const INDIAN_STATES = [
-  "Andhra Pradesh",
-  "Arunachal Pradesh",
-  "Assam",
-  "Bihar",
-  "Chhattisgarh",
-  "Delhi",
-  "Goa",
-  "Gujarat",
-  "Haryana",
-  "Himachal Pradesh",
-  "Jharkhand",
-  "Karnataka",
-  "Kerala",
-  "Madhya Pradesh",
-  "Maharashtra",
-  "Manipur",
-  "Meghalaya",
-  "Mizoram",
-  "Nagaland",
-  "Odisha",
-  "Punjab",
-  "Rajasthan",
-  "Sikkim",
-  "Tamil Nadu",
-  "Telangana",
-  "Tripura",
-  "Uttar Pradesh",
-  "Uttarakhand",
-  "West Bengal",
-] as const;
+/** States and union territories, in catalogue order. City lists live in indiaCities.json. */
+export const INDIAN_STATES = Object.keys(indiaCities);
 
-export const CITIES_BY_STATE: Record<string, string[]> = {
-  "Andhra Pradesh": ["Visakhapatnam", "Vijayawada", "Guntur", "Nellore", "Tirupati"],
-  "Arunachal Pradesh": ["Itanagar", "Naharlagun", "Pasighat", "Tawang"],
-  Assam: ["Guwahati", "Dibrugarh", "Silchar", "Jorhat", "Tezpur"],
-  Bihar: ["Patna", "Gaya", "Muzaffarpur", "Bhagalpur", "Darbhanga"],
-  Chhattisgarh: ["Raipur", "Bhilai", "Bilaspur", "Korba", "Durg"],
-  Delhi: ["Delhi", "New Delhi", "North Delhi", "South Delhi", "East Delhi", "West Delhi"],
-  Goa: ["Panaji", "Margao", "Vasco da Gama", "Mapusa"],
-  Gujarat: ["Ahmedabad", "Surat", "Vadodara", "Rajkot", "Gandhinagar"],
-  Haryana: ["Gurugram", "Faridabad", "Panipat", "Ambala", "Karnal"],
-  "Himachal Pradesh": ["Shimla", "Dharamshala", "Manali", "Solan", "Mandi"],
-  Jharkhand: ["Ranchi", "Jamshedpur", "Dhanbad", "Bokaro", "Deoghar"],
-  Karnataka: ["Bengaluru", "Mysuru", "Mangaluru", "Hubballi", "Belagavi"],
-  Kerala: ["Kochi", "Thiruvananthapuram", "Kozhikode", "Thrissur", "Kollam"],
-  "Madhya Pradesh": ["Indore", "Bhopal", "Jabalpur", "Gwalior", "Ujjain"],
-  Maharashtra: ["Mumbai", "Pune", "Nagpur", "Nashik", "Thane", "Aurangabad"],
-  Manipur: ["Imphal", "Thoubal", "Bishnupur"],
-  Meghalaya: ["Shillong", "Tura", "Jowai"],
-  Mizoram: ["Aizawl", "Lunglei", "Champhai"],
-  Nagaland: ["Kohima", "Dimapur", "Mokokchung"],
-  Odisha: ["Bhubaneswar", "Cuttack", "Rourkela", "Sambalpur", "Puri"],
-  Punjab: ["Chandigarh", "Ludhiana", "Amritsar", "Jalandhar", "Patiala"],
-  Rajasthan: ["Jaipur", "Jodhpur", "Udaipur", "Kota", "Ajmer"],
-  Sikkim: ["Gangtok", "Namchi", "Gyalshing"],
-  "Tamil Nadu": ["Chennai", "Coimbatore", "Madurai", "Tiruchirappalli", "Salem"],
-  Telangana: ["Hyderabad", "Warangal", "Nizamabad", "Karimnagar"],
-  Tripura: ["Agartala", "Udaipur", "Dharmanagar"],
-  "Uttar Pradesh": ["Lucknow", "Kanpur", "Noida", "Ghaziabad", "Varanasi", "Agra"],
-  Uttarakhand: ["Dehradun", "Haridwar", "Rishikesh", "Haldwani", "Nainital"],
-  "West Bengal": ["Kolkata", "Howrah", "Durgapur", "Siliguri", "Asansol"],
-};
-
-/** Always pinned at the top of city filters (order matters). */
-export const PINNED_FILTER_CITIES: Array<{ label: string; value: string }> = [
-  { label: "Delhi", value: "Delhi" },
-  { label: "Mumbai", value: "Mumbai" },
-  { label: "Pune", value: "Pune" },
-  { label: "Lucknow", value: "Lucknow" },
-  { label: "Bangalore", value: "Bengaluru" },
-  { label: "Gurugram", value: "Gurugram" },
-];
+export const CITIES_BY_STATE: Record<string, string[]> = indiaCities;
 
 export const ORGANIZATION_TYPES = [
   { value: "event_organizer", label: "Event Organizer" },

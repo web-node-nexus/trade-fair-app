@@ -19,6 +19,7 @@ import type { EventContact } from "@/api/types";
 import { AnimatedPressable } from "@/components/ui/AnimatedPressable";
 import { PrimaryButton } from "@/components/ui/PrimaryButton";
 import { useAuth } from "@/context/AuthContext";
+import { useI18n } from "@/context/I18nContext";
 import { usePullToRefresh } from "@/hooks/usePullToRefresh";
 import { fetchCategories } from "@/api/client";
 import { publicJson } from "@/lib/authFetch";
@@ -37,6 +38,7 @@ export function EventDetailScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
   const { user } = useAuth();
+  const { t } = useI18n();
   const [event, setEvent] = useState<PublicEvent | null>(null);
   const [tickets, setTickets] = useState<TicketType[]>([]);
   const [media, setMedia] = useState<EventMedia[]>([]);
@@ -305,13 +307,13 @@ export function EventDetailScreen() {
 
       <View style={[styles.footer, { paddingBottom: insets.bottom + 12 }]}>
         <View>
-          <Text style={styles.footerLabel}>From</Text>
+          <Text style={styles.footerLabel}>{t("event.from")}</Text>
           <Text style={styles.footerPrice}>
-            {minPrice != null ? `₹${(minPrice / 100).toLocaleString("en-IN")}` : tickets.some((t) => Number(t.priceMinor) === 0) ? "FREE" : "—"}
+            {minPrice != null ? `₹${(minPrice / 100).toLocaleString("en-IN")}` : tickets.some((tt) => Number(tt.priceMinor) === 0) ? "FREE" : "—"}
           </Text>
         </View>
         <PrimaryButton
-          label={bookTicketsDisabled ? "Tickets not for sale" : "Book tickets"}
+          label={bookTicketsDisabled ? t("event.ticketsUnavailable") : t("event.bookTickets")}
           variant="cta"
           disabled={bookTicketsDisabled}
           style={{ flex: 1, maxWidth: 220 }}

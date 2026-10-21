@@ -6,39 +6,42 @@ import { Ionicons } from "@expo/vector-icons";
 import { PrimaryButton } from "@/components/ui/PrimaryButton";
 import { LoadingView } from "@/components/ui/LoadingView";
 import { useAuth } from "@/context/AuthContext";
+import { useI18n } from "@/context/I18nContext";
+import { LanguageSwitcher } from "@/components/i18n/LanguageSwitcher";
 import { confirmSignOut } from "@/lib/signOutConfirm";
 import { usePullToRefresh } from "@/hooks/usePullToRefresh";
 import { colors } from "@/theme/colors";
 import { radius, spacing } from "@/theme/spacing";
 
-const MENU = [
-  { label: "Refer & earn · 100 pts", icon: "gift-outline" as const, route: "/dashboard/referral" },
-  { label: "Account settings", icon: "person-outline" as const, route: "/dashboard/account" },
-  { label: "Announcements", icon: "notifications-outline" as const, route: "/dashboard/notifications" },
-  { label: "Browse fairs", icon: "calendar-outline" as const, route: "/(tabs)/trade-fairs" },
-  { label: "Explore industries", icon: "grid-outline" as const, route: "/(tabs)/explore" },
-];
-
-const HELP_LINKS = [
-  { label: "FAQ", route: "/pages/faq" },
-  { label: "Contact us", route: "/pages/contact" },
-];
-
-const LEGAL_LINKS = [
-  { label: "Privacy policy", route: "/pages/privacy-policy" },
-  { label: "Terms & Conditions", route: "/pages/terms-of-service" },
-  { label: "Payment & refund policy", route: "/pages/payment-refund-policy" },
-  { label: "Cookie policy", route: "/pages/cookie-policy" },
-];
-
 export function ProfileScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
   const { user, logout, primaryDashboard, refreshMe, ready } = useAuth();
+  const { t } = useI18n();
   const reload = useCallback(async () => {
     await refreshMe();
   }, [refreshMe]);
   const { refreshControl } = usePullToRefresh(reload);
+
+  const menu = [
+    { label: t("profile.referEarn"), icon: "gift-outline" as const, route: "/dashboard/referral" },
+    { label: t("profile.accountSettings"), icon: "person-outline" as const, route: "/dashboard/account" },
+    { label: t("profile.announcements"), icon: "notifications-outline" as const, route: "/dashboard/notifications" },
+    { label: t("profile.browseFairs"), icon: "calendar-outline" as const, route: "/(tabs)/trade-fairs" },
+    { label: t("profile.exploreIndustries"), icon: "grid-outline" as const, route: "/(tabs)/explore" },
+  ];
+
+  const helpLinks = [
+    { label: t("profile.faq"), route: "/pages/faq" },
+    { label: t("profile.contact"), route: "/pages/contact" },
+  ];
+
+  const legalLinks = [
+    { label: t("profile.privacy"), route: "/pages/privacy-policy" },
+    { label: t("profile.terms"), route: "/pages/terms-of-service" },
+    { label: t("profile.paymentRefund"), route: "/pages/payment-refund-policy" },
+    { label: t("profile.cookies"), route: "/pages/cookie-policy" },
+  ];
 
   // Guests tapping Account/Profile go straight to login
   useEffect(() => {
@@ -48,10 +51,10 @@ export function ProfileScreen() {
   }, [ready, user, router]);
 
   if (!ready || !user) {
-    return <LoadingView label="Opening sign in…" />;
+    return <LoadingView label={t("profile.openingSignIn")} />;
   }
 
-  const menuItems = MENU.filter((m) => {
+  const menuItems = menu.filter((m) => {
     if (m.route === "/dashboard/referral") return Boolean(user);
     return true;
   });
@@ -64,7 +67,7 @@ export function ProfileScreen() {
       refreshControl={refreshControl}
     >
       <View style={[styles.header, { paddingTop: insets.top + spacing.lg }]}>
-        <Text style={styles.screenTitle}>Profile</Text>
+        <Text style={styles.screenTitle}>{t("profile.title")}</Text>
         <View style={styles.profileCard}>
           <View style={styles.avatar}>
             <Text style={styles.avatarText}>
@@ -87,8 +90,9 @@ export function ProfileScreen() {
       </View>
 
       <View style={styles.body}>
+        <LanguageSwitcher />
         <PrimaryButton
-          label="Open workspace"
+          label={t("profile.openWorkspace")}
           onPress={() => router.push(primaryDashboard as never)}
         />
         {menuItems.map((m) => (
@@ -102,8 +106,8 @@ export function ProfileScreen() {
             <Ionicons name="chevron-forward" size={18} color={colors.textMuted} />
           </Pressable>
         ))}
-        <Text style={styles.sectionTitle}>Support</Text>
-        {HELP_LINKS.map((m) => (
+        <Text style={styles.sectionTitle}>{t("common.support")}</Text>
+        {helpLinks.map((m) => (
           <Pressable
             key={m.route}
             style={styles.menuRow}
@@ -114,8 +118,8 @@ export function ProfileScreen() {
             <Ionicons name="chevron-forward" size={18} color={colors.textMuted} />
           </Pressable>
         ))}
-        <Text style={styles.sectionTitle}>Legal</Text>
-        {LEGAL_LINKS.map((m) => (
+        <Text style={styles.sectionTitle}>{t("common.legal")}</Text>
+        {legalLinks.map((m) => (
           <Pressable
             key={m.route}
             style={styles.menuRow}
@@ -128,7 +132,7 @@ export function ProfileScreen() {
         ))}
         <Pressable style={styles.logout} onPress={() => confirmSignOut(() => logout())}>
           <Ionicons name="log-out-outline" size={20} color="#ef4444" />
-          <Text style={styles.logoutText}>Sign out</Text>
+          <Text style={styles.logoutText}>{t("common.logout")}</Text>
         </Pressable>
       </View>
     </ScrollView>

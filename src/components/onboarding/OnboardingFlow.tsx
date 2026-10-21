@@ -19,6 +19,8 @@ import Animated, {
   useSharedValue,
   withTiming,
 } from "react-native-reanimated";
+import { useI18n } from "@/context/I18nContext";
+import { LanguageSwitcher } from "@/components/i18n/LanguageSwitcher";
 import { completeOnboarding } from "@/lib/onboardingStorage";
 import { colors } from "@/theme/colors";
 import { radius, spacing } from "@/theme/spacing";
@@ -32,45 +34,50 @@ import {
 const { width: SCREEN_W } = Dimensions.get("window");
 const TOTAL = 4;
 
-const SLIDES = [
+const SLIDE_META = [
   {
     key: "discover",
     step: "01",
-    title: "Discover Trade Fairs Near You",
-    body: "Browse nearby exhibitions and trade fairs in one place",
+    titleKey: "onboarding.discoverTitle" as const,
+    bodyKey: "onboarding.discoverBody" as const,
     Illustration: DiscoverIllustration,
   },
   {
     key: "book",
     step: "02",
-    title: "Book Your Stall Instantly",
-    body: "Book a stall at any trade fair directly in the app — no hassle",
+    titleKey: "onboarding.bookTitle" as const,
+    bodyKey: "onboarding.bookBody" as const,
     Illustration: BookIllustration,
   },
   {
     key: "navigate",
     step: "03",
-    title: "Live Map & Navigation",
-    body: "Never get lost inside the venue — find every stall easily on the live map",
+    titleKey: "onboarding.navigateTitle" as const,
+    bodyKey: "onboarding.navigateBody" as const,
     Illustration: NavigateIllustration,
   },
   {
     key: "connect",
     step: "04",
-    title: "Connect with Exhibitors",
-    body: "Connect directly with exhibitors — grow your business and seize opportunities",
+    titleKey: "onboarding.connectTitle" as const,
+    bodyKey: "onboarding.connectBody" as const,
     Illustration: ConnectIllustration,
   },
 ] as const;
 
 type Props = { onComplete: () => void };
+type SlideMeta = (typeof SLIDE_META)[number];
 
 function SlideContent({
   item,
   visible,
+  title,
+  body,
 }: {
-  item: (typeof SLIDES)[number];
+  item: SlideMeta;
   visible: boolean;
+  title: string;
+  body: string;
 }) {
   const progress = useSharedValue(visible ? 0 : 1);
 
@@ -107,8 +114,8 @@ function SlideContent({
       </Animated.View>
 
       <Animated.View style={[styles.copy, copyStyle]}>
-        <Text style={styles.title}>{item.title}</Text>
-        <Text style={styles.body}>{item.body}</Text>
+        <Text style={styles.title}>{title}</Text>
+        <Text style={styles.body}>{body}</Text>
       </Animated.View>
     </View>
   );
@@ -116,7 +123,8 @@ function SlideContent({
 
 export function OnboardingFlow({ onComplete }: Props) {
   const insets = useSafeAreaInsets();
-  const listRef = useRef<FlatList>(null);
+  const { t } = useI18n();
+  const listRef = useRef<FlatList<SlideMeta>>(null);
   const [index, setIndex] = useState(0);
 
   const onScroll = useCallback(
@@ -133,7 +141,7 @@ export function OnboardingFlow({ onComplete }: Props) {
   }).current;
 
   const goNext = useCallback(async () => {
-    if (index < SLIDES.length - 1) {
+    if (index < SLIDE_META.length - 1) {
       listRef.current?.scrollToIndex({ index: index + 1, animated: true });
       return;
     }
@@ -146,13 +154,16 @@ export function OnboardingFlow({ onComplete }: Props) {
     onComplete();
   }, [onComplete]);
 
-  const isLast = index === SLIDES.length - 1;
+  const isLast = index === SLIDE_META.length - 1;
 
   return (
     <View style={[styles.root, { paddingTop: insets.top }]}>
+      <View style={styles.langBar}>
+        <LanguageSwitcher compact />
+      </View>
       <FlatList
         ref={listRef}
-        data={SLIDES}
+        data={SLIDE_META}
         horizontal
         pagingEnabled
         showsHorizontalScrollIndicator={false}
@@ -162,20 +173,25 @@ export function OnboardingFlow({ onComplete }: Props) {
         keyExtractor={(s) => s.key}
         getItemLayout={(_, i) => ({ length: SCREEN_W, offset: SCREEN_W * i, index: i })}
         renderItem={({ item, index: slideIndex }) => (
-          <SlideContent item={item} visible={slideIndex === index} />
+          <SlideContent
+            item={item}
+            visible={slideIndex === index}
+            title={t(item.titleKey)}
+            body={t(item.bodyKey)}
+          />
         )}
       />
 
       <View style={[styles.footer, { paddingBottom: insets.bottom + spacing.lg }]}>
         <View style={styles.dots}>
-          {SLIDES.map((s, i) => (
+          {SLIDE_META.map((s, i) => (
             <View key={s.key} style={[styles.dot, i === index && styles.dotActive]} />
           ))}
         </View>
 
         <Pressable
           accessibilityRole="button"
-          accessibilityLabel={isLast ? "Get started" : "Next slide"}
+          accessibilityLabel={isLast ? t("common.getStarted") : t("common.next")}
           onPress={() => void goNext()}
           style={({ pressed }) => [
             styles.nextBtn,
@@ -192,7 +208,7 @@ export function OnboardingFlow({ onComplete }: Props) {
 
         {!isLast ? (
           <Pressable onPress={() => void skip()} hitSlop={12} style={styles.skipWrap}>
-            <Text style={styles.skip}>Skip</Text>
+            <Text style={styles.skip}>{t("common.skip")}</Text>
           </Pressable>
         ) : (
           <View style={styles.skipWrap} />
@@ -204,6 +220,11 @@ export function OnboardingFlow({ onComplete }: Props) {
 
 const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: "#ffffff" },
+  langBar: {
+    alignItems: "flex-end",
+    paddingHorizontal: spacing.screen,
+    paddingBottom: spacing.xs,
+  },
   slide: {
     flex: 1,
     paddingHorizontal: spacing.screen,

@@ -19,7 +19,9 @@ import { BrandLogo } from "@/components/brand/BrandLogo";
 import { BottomSheetModal } from "@/components/ui/BottomSheetModal";
 import { PrimaryButton } from "@/components/ui/PrimaryButton";
 import { TextField } from "@/components/ui/TextField";
+import { LanguageSwitcher } from "@/components/i18n/LanguageSwitcher";
 import { useAuth } from "@/context/AuthContext";
+import { useI18n } from "@/context/I18nContext";
 import {
   dashboardPathForAccountType,
   type SignupAccountType,
@@ -47,28 +49,17 @@ import {
 import { colors } from "@/theme/colors";
 import { radius, spacing } from "@/theme/spacing";
 
-const ROLES: {
-  value: SignupAccountType;
-  label: string;
-  short: string;
-  color: string;
-}[] = [
-  { value: "organizer", label: "Organizer", short: "Organizer", color: "#0f766e" },
-  { value: "exhibitor", label: "Exhibitor", short: "Exhibitor", color: "#065f46" },
-  { value: "service_provider", label: "Services", short: "Services", color: "#5b21b6" },
-  { value: "visitor", label: "Visitor", short: "Visitor", color: "#0369a1" },
-];
-
 type Step = 1 | 2 | 3;
 
 function StepIndicator({ current }: { current: Step }) {
+  const { t } = useI18n();
   const pct = (current / 3) * 100;
   return (
     <View style={styles.progressWrap}>
       <View style={styles.progressTrack}>
         <View style={[styles.progressFill, { width: `${pct}%` }]} />
       </View>
-      <Text style={styles.progressLabel}>Step {current} of 3</Text>
+      <Text style={styles.progressLabel}>{t("auth.stepOf", { current, total: 3 })}</Text>
     </View>
   );
 }
@@ -98,7 +89,7 @@ function SelectField({
         <Ionicons name="chevron-down" size={16} color={colors.textMuted} />
       </Pressable>
       <BottomSheetModal visible={open} onClose={() => setOpen(false)} title={label} maxHeight="70%">
-        <ScrollView style={{ maxHeight: 360 }} showsVerticalScrollIndicator={false}>
+        <ScrollView style={{ maxHeight: 420 }} showsVerticalScrollIndicator>
           {options.map((o) => (
             <Pressable
               key={o.value}
@@ -122,7 +113,18 @@ export function RegisterScreen() {
   const router = useRouter();
   const params = useLocalSearchParams<{ accountType?: string }>();
   const { register } = useAuth();
+  const { t } = useI18n();
   const { showError } = useToast();
+  const roles = useMemo(
+    () =>
+      [
+        { value: "organizer" as const, short: t("auth.organizer"), color: "#0f766e" },
+        { value: "exhibitor" as const, short: t("auth.exhibitor"), color: "#065f46" },
+        { value: "service_provider" as const, short: t("auth.services"), color: "#5b21b6" },
+        { value: "visitor" as const, short: t("auth.visitor"), color: "#0369a1" },
+      ] satisfies { value: SignupAccountType; short: string; color: string }[],
+    [t]
+  );
   const [step, setStep] = useState<Step>(1);
   const [accountType, setAccountType] = useState<SignupAccountType>(() => {
     const raw = String(params.accountType ?? "");
@@ -347,8 +349,11 @@ export function RegisterScreen() {
         <View style={styles.logoBadge}>
           <BrandLogo size="auth" showTagline={false} />
         </View>
-        <Text style={styles.heroTitle}>Create account</Text>
-        <Text style={styles.heroSub}>Join India's exhibition marketplace</Text>
+        <View style={styles.heroLang}>
+          <LanguageSwitcher compact />
+        </View>
+        <Text style={styles.heroTitle}>{t("auth.registerTitle")}</Text>
+        <Text style={styles.heroSub}>{t("auth.registerSubtitle")}</Text>
         <StepIndicator current={step} />
       </LinearGradient>
 
@@ -364,9 +369,9 @@ export function RegisterScreen() {
           <View style={styles.formCard}>
           {step === 1 ? (
             <>
-              <Text style={styles.sectionLabel}>Choose your role</Text>
+              <Text style={styles.sectionLabel}>{t("auth.signingUpAs")}</Text>
               <View style={styles.roleGrid}>
-                {ROLES.map((r) => {
+                {roles.map((r) => {
                   const active = accountType === r.value;
                   return (
                     <Pressable
@@ -387,18 +392,18 @@ export function RegisterScreen() {
                   );
                 })}
               </View>
-              <TextField label="Full name" value={fullName} onChangeText={setFullName} />
+              <TextField label={t("auth.fullName")} value={fullName} onChangeText={setFullName} />
               <TextField
-                label="Email"
+                label={t("auth.email")}
                 value={email}
                 onChangeText={setEmail}
                 autoCapitalize="none"
                 keyboardType="email-address"
               />
-              <TextField label="Phone" value={phone} onChangeText={setPhone} keyboardType="phone-pad" />
-              <TextField label="Password" value={password} onChangeText={setPassword} secureTextEntry />
+              <TextField label={t("auth.phone")} value={phone} onChangeText={setPhone} keyboardType="phone-pad" />
+              <TextField label={t("auth.password")} value={password} onChangeText={setPassword} secureTextEntry />
               <TextField
-                label="Confirm password"
+                label={t("auth.confirmPassword")}
                 value={confirmPassword}
                 onChangeText={setConfirmPassword}
                 secureTextEntry
@@ -595,7 +600,7 @@ export function RegisterScreen() {
             <ActivityIndicator color={colors.emerald} style={{ flex: 1 }} />
           ) : (
             <PrimaryButton
-              label={step === 3 ? "Create account" : "Continue"}
+              label={step === 3 ? t("auth.createAccount") : t("common.continue")}
               onPress={onPrimary}
               style={{ flex: 1 }}
             />
@@ -623,6 +628,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.md,
     marginBottom: spacing.md,
   },
+  heroLang: { alignItems: "flex-end", marginBottom: spacing.sm },
   heroTitle: { fontSize: 26, fontWeight: "800", color: "#fff", letterSpacing: -0.4 },
   heroSub: { marginTop: 4, fontSize: 13, color: "rgba(248,250,252,0.82)" },
   progressWrap: { marginTop: spacing.lg },

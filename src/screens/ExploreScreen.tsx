@@ -15,6 +15,7 @@ import type { ServiceListing } from "@/api/types";
 import { fetchServiceCategories, fetchServices, type ServiceCategory } from "@/api/client";
 import { ServiceProviderRowCard } from "@/components/marketplace/ServiceProviderRowCard";
 import { SectionHeader } from "@/components/ui/SectionHeader";
+import { useI18n } from "@/context/I18nContext";
 import { usePullToRefresh } from "@/hooks/usePullToRefresh";
 import { colors } from "@/theme/colors";
 import { radius, spacing } from "@/theme/spacing";
@@ -65,6 +66,7 @@ export function ExploreScreen() {
   const insets = useSafeAreaInsets();
   const tabBarHeight = useBottomTabBarHeight();
   const router = useRouter();
+  const { t } = useI18n();
   const [categories, setCategories] = useState<ServiceCategory[]>([]);
   const [services, setServices] = useState<ServiceListing[]>([]);
   const [loading, setLoading] = useState(true);
@@ -92,8 +94,8 @@ export function ExploreScreen() {
   return (
     <View style={styles.root}>
       <View style={[styles.header, { paddingTop: insets.top + spacing.sm }]}>
-        <Text style={styles.headerTitle}>Services</Text>
-        <Text style={styles.headerSub}>Booth design, logistics, AV & more for your exhibition</Text>
+        <Text style={styles.headerTitle}>{t("explore.title")}</Text>
+        <Text style={styles.headerSub}>{t("explore.subtitle")}</Text>
       </View>
 
       <ScrollView
@@ -102,7 +104,7 @@ export function ExploreScreen() {
         refreshControl={refreshControl}
       >
         <View style={styles.section}>
-          <SectionHeader title="Browse by Category" inset />
+          <SectionHeader title={t("explore.browseCategory")} inset />
           <View style={styles.catGrid}>
             {categories.slice(0, 12).map((cat) => (
               <Pressable
@@ -128,8 +130,8 @@ export function ExploreScreen() {
 
         <View style={styles.section}>
           <SectionHeader
-            title="Top Service Providers"
-            actionLabel="See all"
+            title={t("explore.topProviders")}
+            actionLabel={t("explore.viewAll")}
             inset
             onAction={() => router.push("/dashboard/marketplace")}
           />
@@ -138,7 +140,7 @@ export function ExploreScreen() {
           ) : services.length === 0 ? (
             <View style={styles.emptyBox}>
               <Ionicons name="construct-outline" size={32} color={colors.textMuted} />
-              <Text style={styles.emptyText}>No providers listed yet. Check back soon.</Text>
+              <Text style={styles.emptyText}>{t("explore.noServices")}</Text>
             </View>
           ) : (
             <View style={styles.providerList}>

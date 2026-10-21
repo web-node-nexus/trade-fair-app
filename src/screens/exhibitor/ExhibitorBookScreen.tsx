@@ -202,7 +202,6 @@ export function ExhibitorBookScreen() {
         <View style={styles.mapWrap}>
           <StallNumberPicker
             imageUrl={catalogEvent.stallLayoutImageUrl}
-            stallNumberCount={catalogEvent.stallNumberCount ?? 100}
             stalls={stalls}
             selectedId={selected.size === 1 ? Array.from(selected)[0] : ""}
             onSelect={selectStallId}

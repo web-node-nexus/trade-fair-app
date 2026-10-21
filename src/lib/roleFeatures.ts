@@ -135,7 +135,7 @@ export const ORGANIZER_FEATURES: FeatureItem[] = [
     icon: "calendar-outline",
   },
   {
-    title: "Exhibitors",
+    title: "All Exhibitors List",
     subtitle: "Contact stall bookers",
     route: "/dashboard/organizer/exhibitors",
     icon: "people-outline",

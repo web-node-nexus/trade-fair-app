@@ -13,20 +13,38 @@ type Stall = {
 
 type Props = {
   imageUrl: string;
-  stallNumberCount: number;
   stalls: Stall[];
   selectedId: string;
   onSelect: (stallId: string) => void;
 };
 
-export function StallNumberPicker({ imageUrl, stallNumberCount, stalls, selectedId, onSelect }: Props) {
-  const stallByLabel = useMemo(() => {
-    const m = new Map<string, Stall>();
-    for (const s of stalls) m.set(s.label.trim(), s);
-    return m;
-  }, [stalls]);
+function stallSortValue(label: string): number | null {
+  const match = label.trim().match(/^(?:stall\s*(?:no\.?|number|#)?\s*)?0*(\d+)$/i);
+  if (!match) return null;
+  const n = Number(match[1]);
+  return Number.isFinite(n) ? n : null;
+}
 
-  const count = Math.min(100, Math.max(1, stallNumberCount || 100));
+function displayStallNo(label: string): string {
+  const t = label.trim();
+  if (!t) return "Stall";
+  if (/^stall\b/i.test(t)) return t;
+  return `Stall ${t}`;
+}
+
+export function StallNumberPicker({ imageUrl, stalls, selectedId, onSelect }: Props) {
+  const ordered = useMemo(
+    () =>
+      [...stalls].sort((a, b) => {
+        const na = stallSortValue(a.label);
+        const nb = stallSortValue(b.label);
+        if (na != null && nb != null && na !== nb) return na - nb;
+        if (na != null && nb == null) return -1;
+        if (na == null && nb != null) return 1;
+        return a.label.localeCompare(b.label, undefined, { numeric: true });
+      }),
+    [stalls]
+  );
   const src = resolveMediaUrl(imageUrl);
 
   return (
@@ -38,29 +56,29 @@ export function StallNumberPicker({ imageUrl, stallNumberCount, stalls, selected
       <Text style={styles.hint}>Tap an available stall number. Booked stalls are disabled.</Text>
 
       <ScrollView style={styles.list} nestedScrollEnabled showsVerticalScrollIndicator={false}>
-        {Array.from({ length: count }, (_, i) => i + 1).map((n) => {
-          const stall = stallByLabel.get(String(n));
-          const unavailable =
-            !stall || stall.status === "booked" || stall.status === "held" || stall.status === "blocked";
-          const active = stall?.id === selectedId;
-          let statusLabel = "Available";
-          if (!stall) statusLabel = "Not set up";
-          else if (stall.status === "booked") statusLabel = "Booked";
-          else if (stall.status === "held") statusLabel = "Held";
-          else if (stall.status === "blocked") statusLabel = "Blocked";
+        {ordered.length === 0 ? (
+          <Text style={styles.hint}>No stall numbers yet.</Text>
+        ) : null}
+        {ordered.map((stall) => {
+          const unavailable = stall.status !== "available";
+          const active = stall.id === selectedId;
+          const statusLabel =
+            stall.status === "available"
+              ? "Available"
+              : stall.status.charAt(0).toUpperCase() + stall.status.slice(1);
 
           return (
             <Pressable
-              key={n}
+              key={stall.id}
               disabled={unavailable}
-              onPress={() => stall && onSelect(stall.id)}
+              onPress={() => onSelect(stall.id)}
               style={[
                 styles.row,
                 active && styles.rowActive,
                 unavailable && styles.rowDisabled,
               ]}
             >
-              <Text style={[styles.num, unavailable && styles.textMuted]}>Stall {n}</Text>
+              <Text style={[styles.num, unavailable && styles.textMuted]}>{displayStallNo(stall.label)}</Text>
               <Text style={[styles.status, unavailable && styles.textMuted]}>{statusLabel}</Text>
             </Pressable>
           );

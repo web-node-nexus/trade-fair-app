@@ -36,13 +36,15 @@ import { INDUSTRY_COLORS } from "@/data/mock";
 import { filterUpcomingEvents } from "@/utils/eventDates";
 import { usePullToRefresh } from "@/hooks/usePullToRefresh";
 import { PINNED_FILTER_CITIES } from "@/lib/locationOptions";
+import { LanguageSwitcher } from "@/components/i18n/LanguageSwitcher";
+import { useI18n } from "@/context/I18nContext";
 import { colors } from "@/theme/colors";
 import { radius, spacing } from "@/theme/spacing";
 import { appFontFamily } from "@/theme/typography";
 
 const QUICK_ACTIONS = [
   {
-    label: "Organizers",
+    labelKey: "home.organizers" as const,
     icon: "business" as const,
     route: "/pages/for-organizers",
     dashboard: "/dashboard/organizer",
@@ -52,7 +54,7 @@ const QUICK_ACTIONS = [
     iconColor: "#0f766e",
   },
   {
-    label: "Exhibitors",
+    labelKey: "home.exhibitors" as const,
     icon: "storefront" as const,
     route: "/pages/for-exhibitors",
     dashboard: "/dashboard/exhibitor",
@@ -62,7 +64,7 @@ const QUICK_ACTIONS = [
     iconColor: "#065f46",
   },
   {
-    label: "Service Providers",
+    labelKey: "home.serviceProviders" as const,
     icon: "construct" as const,
     route: "/pages/for-service-providers",
     dashboard: "/dashboard/service-provider",
@@ -72,7 +74,7 @@ const QUICK_ACTIONS = [
     iconColor: "#5b21b6",
   },
   {
-    label: "Visitors",
+    labelKey: "home.visitors" as const,
     icon: "ticket" as const,
     route: "/pages/for-visitors",
     dashboard: "/dashboard/visitor",
@@ -91,6 +93,7 @@ export function HomeScreen() {
   const tabBarHeight = useBottomTabBarHeight();
   const router = useRouter();
   const { user } = useAuth();
+  const { t } = useI18n();
   const roles = user?.roles ?? [];
 
   const openRoleTab = useCallback(
@@ -193,6 +196,7 @@ export function HomeScreen() {
         <View style={[styles.header, { paddingTop: insets.top + 6 }]}>
           <View style={styles.brandRow}>
             <BrandLogo size="md" style={{ flex: 1 }} />
+            <LanguageSwitcher compact />
             <Pressable
               style={styles.iconBtn}
               onPress={() => router.push(user ? "/dashboard/notifications" : "/(auth)/login")}
@@ -210,7 +214,7 @@ export function HomeScreen() {
           <View style={styles.searchBox}>
             <Ionicons name="search" size={17} color={colors.textMuted} />
             <TextInput
-              placeholder="Search city, industry, exhibition…"
+              placeholder={t("home.searchPlaceholder")}
               placeholderTextColor={colors.textMuted}
               style={styles.input}
               value={search}
@@ -228,7 +232,7 @@ export function HomeScreen() {
           <View style={styles.quickRow}>
             {QUICK_ACTIONS.map((a) => (
               <AnimatedPressable
-                key={a.label}
+                key={a.labelKey}
                 style={styles.quickItem}
                 onPress={() => openRoleTab(a)}
               >
@@ -236,7 +240,7 @@ export function HomeScreen() {
                   <Ionicons name={a.icon} size={18} color={a.iconColor} />
                 </View>
                 <Text style={styles.quickLabel} numberOfLines={2}>
-                  {a.label}
+                  {t(a.labelKey)}
                 </Text>
               </AnimatedPressable>
             ))}
@@ -245,8 +249,8 @@ export function HomeScreen() {
           <FeaturedEventCarousel events={featuredEvents} banners={homeBanners} />
 
           <SectionHeader
-            title="Upcoming Trade Fairs"
-            actionLabel="View all"
+            title={t("home.upcomingFairs")}
+            actionLabel={t("common.viewAll")}
             inset
             onAction={() => router.push("/(tabs)/trade-fairs")}
           />
@@ -276,8 +280,8 @@ export function HomeScreen() {
 
           <View style={styles.section}>
             <SectionHeader
-              title="Booth & Event Services"
-              actionLabel="View all"
+              title={t("home.boothServices")}
+              actionLabel={t("common.viewAll")}
               inset
               onAction={() => router.push("/(tabs)/explore")}
             />
@@ -307,7 +311,7 @@ export function HomeScreen() {
 
           <View style={styles.section}>
             <SectionHeader
-              title="Browse by Industry"
+              title={t("home.browseByIndustry")}
               actionLabel="View all"
               inset
               onAction={() => router.push("/(tabs)/trade-fairs")}
@@ -339,7 +343,7 @@ export function HomeScreen() {
 
           <View style={styles.section}>
             <SectionHeader
-              title="Popular Cities"
+              title={t("home.popularCities")}
               actionLabel="View all"
               inset
               onAction={() => router.push("/(tabs)/trade-fairs")}

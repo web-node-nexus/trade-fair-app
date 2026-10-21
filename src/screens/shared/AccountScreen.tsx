@@ -20,6 +20,8 @@ import { uploadMultipart } from "@/lib/uploadMultipart";
 import { TextField } from "@/components/ui/TextField";
 import { PrimaryButton } from "@/components/ui/PrimaryButton";
 import { useAuth } from "@/context/AuthContext";
+import { useI18n } from "@/context/I18nContext";
+import { LanguageSwitcher } from "@/components/i18n/LanguageSwitcher";
 import { getWebBaseUrl } from "@/lib/webBaseUrl";
 import { colors } from "@/theme/colors";
 import { radius, spacing } from "@/theme/spacing";
@@ -49,6 +51,7 @@ function withCacheBust(url: string): string {
 export function AccountScreen() {
   const router = useRouter();
   const { refreshMe } = useAuth();
+  const { t } = useI18n();
   const [me, setMe] = useState<Me | null>(null);
   const [fullName, setFullName] = useState("");
   const [phone, setPhone] = useState("");
@@ -182,7 +185,8 @@ export function AccountScreen() {
   const verified = !!me?.phoneVerifiedAt;
 
   return (
-    <ScreenShell title="Account" subtitle="Manage your profile & verification" scroll onRefresh={load}>
+    <ScreenShell title={t("account.title")} subtitle={t("account.languageHint")} scroll onRefresh={load}>
+      <LanguageSwitcher />
       <View style={styles.photoRow}>
         <View style={styles.avatarWrap}>
           {photoUrl ? (
@@ -202,10 +206,10 @@ export function AccountScreen() {
         </View>
       </View>
 
-      <TextField label="User ID" value={me?.id ?? "—"} editable={false} />
-      <TextField label="Email" value={me?.email ?? ""} editable={false} />
-      <TextField label="Full name" value={fullName} onChangeText={setFullName} />
-      <TextField label="Phone" value={phone} onChangeText={setPhone} keyboardType="phone-pad" />
+      <TextField label={t("account.userId")} value={me?.id ?? "—"} editable={false} />
+      <TextField label={t("account.email")} value={me?.email ?? ""} editable={false} />
+      <TextField label={t("account.fullName")} value={fullName} onChangeText={setFullName} />
+      <TextField label={t("account.phone")} value={phone} onChangeText={setPhone} keyboardType="phone-pad" />
 
       {me?.referralWallet ? (
         <View style={styles.walletCard}>
@@ -279,7 +283,7 @@ export function AccountScreen() {
       ) : null}
 
       {msg ? <Text style={styles.msg}>{msg}</Text> : null}
-      <PrimaryButton label={saving ? "Saving…" : "Save changes"} onPress={() => void save()} />
+      <PrimaryButton label={saving ? t("common.saving") : t("common.save")} onPress={() => void save()} />
     </ScreenShell>
   );
 }

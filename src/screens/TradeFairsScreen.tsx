@@ -29,6 +29,8 @@ import { PrimaryButton } from "@/components/ui/PrimaryButton";
 import { RefreshableFlatList } from "@/components/ui/RefreshableFlatList";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { useAuth } from "@/context/AuthContext";
+import { LanguageSwitcher } from "@/components/i18n/LanguageSwitcher";
+import { useI18n } from "@/context/I18nContext";
 import { filterUpcomingEvents } from "@/utils/eventDates";
 import {
   INDIAN_STATES,
@@ -54,6 +56,7 @@ export function TradeFairsScreen() {
   const tabBarHeight = useBottomTabBarHeight();
   const router = useRouter();
   const { user } = useAuth();
+  const { t } = useI18n();
   const params = useLocalSearchParams<{ search?: string; city?: string; categoryId?: string }>();
 
   const [events, setEvents] = useState<PublicEvent[]>([]);
@@ -215,23 +218,26 @@ export function TradeFairsScreen() {
     <View style={styles.root}>
       <View style={[styles.header, { paddingTop: insets.top + spacing.sm }]}>
         <View style={styles.headerRow}>
-          <Text style={styles.headerTitle}>Trade Fairs</Text>
-          <Pressable
-            hitSlop={12}
-            onPress={() => {
-              if (!user) router.push("/(auth)/login");
-              else router.push("/dashboard/exhibitor/events" as never);
-            }}
-          >
-            <Ionicons name="heart-outline" size={22} color={colors.navy} />
-          </Pressable>
+          <Text style={styles.headerTitle}>{t("tradeFairs.title")}</Text>
+          <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
+            <LanguageSwitcher compact />
+            <Pressable
+              hitSlop={12}
+              onPress={() => {
+                if (!user) router.push("/(auth)/login");
+                else router.push("/dashboard/exhibitor/events" as never);
+              }}
+            >
+              <Ionicons name="heart-outline" size={22} color={colors.navy} />
+            </Pressable>
+          </View>
         </View>
 
         <View style={styles.searchBox}>
           <Ionicons name="search" size={17} color={colors.textMuted} />
           <TextInput
             style={styles.searchInput}
-            placeholder="Search exhibition, city, industry…"
+            placeholder={t("tradeFairs.searchPlaceholder")}
             placeholderTextColor={colors.textMuted}
             value={search}
             onChangeText={setSearch}
@@ -279,7 +285,7 @@ export function TradeFairsScreen() {
             paddingTop: spacing.sm,
             paddingBottom: tabBarHeight + spacing.md,
           }}
-          ListEmptyComponent={<EmptyState title="No fairs match your filters." compact />}
+          ListEmptyComponent={<EmptyState title={t("tradeFairs.noEvents")} compact />}
           renderItem={({ item, index }) => (
             <TradeFairListCard
               event={item}

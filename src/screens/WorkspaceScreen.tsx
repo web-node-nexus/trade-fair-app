@@ -4,7 +4,9 @@ import { useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { PrimaryButton } from "@/components/ui/PrimaryButton";
+import { LanguageSwitcher } from "@/components/i18n/LanguageSwitcher";
 import { useAuth } from "@/context/AuthContext";
+import { useI18n } from "@/context/I18nContext";
 import { defaultRouteForHub } from "@/lib/workspaceNav";
 import { usePullToRefresh } from "@/hooks/usePullToRefresh";
 import { colors } from "@/theme/colors";
@@ -14,6 +16,7 @@ export function WorkspaceScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
   const { user, workspaces, primaryDashboard, refreshMe } = useAuth();
+  const { t } = useI18n();
   const reload = useCallback(async () => {
     await refreshMe();
   }, [refreshMe]);
@@ -30,15 +33,16 @@ export function WorkspaceScreen() {
           <View style={styles.iconCircle}>
             <Ionicons name="briefcase-outline" size={28} color={colors.emerald} />
           </View>
-          <Text style={styles.title}>Your workspace</Text>
-          <Text style={styles.sub}>
-            Sign in to book stalls, manage events, tickets, services, and more.
-          </Text>
+          <Text style={styles.title}>{t("workspace.title")}</Text>
+          <Text style={styles.sub}>{t("workspace.guestSub")}</Text>
+          <View style={{ marginTop: spacing.md }}>
+            <LanguageSwitcher compact />
+          </View>
         </View>
         <View style={styles.cta}>
-          <PrimaryButton label="Sign in" onPress={() => router.push("/(auth)/login" as never)} />
+          <PrimaryButton label={t("auth.signIn")} onPress={() => router.push("/(auth)/login" as never)} />
           <Pressable onPress={() => router.push("/(auth)/register" as never)} style={styles.secondary}>
-            <Text style={styles.secondaryText}>Register</Text>
+            <Text style={styles.secondaryText}>{t("common.register")}</Text>
           </Pressable>
         </View>
       </ScrollView>
@@ -48,9 +52,9 @@ export function WorkspaceScreen() {
   return (
     <View style={styles.root}>
       <View style={[styles.header, { paddingTop: insets.top + spacing.lg }]}>
-        <Text style={styles.greet}>Welcome back</Text>
+        <Text style={styles.greet}>{t("workspace.welcomeBack")}</Text>
         <Text style={styles.name}>{user.fullName || user.email}</Text>
-        <Text style={styles.sub}>Pick a workspace to continue</Text>
+        <Text style={styles.sub}>{t("workspace.pickWorkspace")}</Text>
       </View>
       <ScrollView
         contentContainerStyle={[styles.list, { paddingBottom: insets.bottom + 100 }]}
@@ -77,7 +81,7 @@ export function WorkspaceScreen() {
           onPress={() => router.push(primaryDashboard as never)}
           style={styles.primaryWs}
         >
-          <Text style={styles.primaryWsText}>Open primary workspace →</Text>
+          <Text style={styles.primaryWsText}>{t("workspace.openPrimary")}</Text>
         </Pressable>
       </ScrollView>
     </View>

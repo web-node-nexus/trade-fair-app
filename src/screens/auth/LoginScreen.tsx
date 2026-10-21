@@ -1,10 +1,12 @@
 import { useState } from "react";
-import { ActivityIndicator, Pressable, StyleSheet, Text } from "react-native";
+import { ActivityIndicator, Pressable, StyleSheet, Text, View } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { AuthScreenLayout } from "@/components/ui/AuthScreenLayout";
 import { PrimaryButton } from "@/components/ui/PrimaryButton";
 import { TextField } from "@/components/ui/TextField";
 import { useAuth } from "@/context/AuthContext";
+import { LanguageSwitcher } from "@/components/i18n/LanguageSwitcher";
+import { useI18n } from "@/context/I18nContext";
 import { useToast } from "@/components/ui/ToastProvider";
 import { isValidEmail, required } from "@/lib/validation";
 import { colors } from "@/theme/colors";
@@ -14,6 +16,7 @@ export function LoginScreen() {
   const router = useRouter();
   const params = useLocalSearchParams<{ accountType?: string; next?: string }>();
   const { login, primaryDashboard } = useAuth();
+  const { t } = useI18n();
   const { showError } = useToast();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -52,9 +55,12 @@ export function LoginScreen() {
   }
 
   return (
-    <AuthScreenLayout title="Welcome back" subtitle="Welcome back to TradeFairWala">
+    <AuthScreenLayout title={t("auth.welcomeBack")} subtitle={t("auth.welcomeSubtitle")}>
+      <View style={styles.langRow}>
+        <LanguageSwitcher compact />
+      </View>
       <TextField
-        label="Email"
+        label={t("auth.email")}
         value={email}
         onChangeText={setEmail}
         autoCapitalize="none"
@@ -62,19 +68,19 @@ export function LoginScreen() {
         autoComplete="email"
       />
       <TextField
-        label="Password"
+        label={t("auth.password")}
         value={password}
         onChangeText={setPassword}
         secureTextEntry
         autoComplete="password"
       />
       <Pressable onPress={() => router.push("/(auth)/forgot-password" as never)} style={styles.forgot}>
-        <Text style={styles.forgotText}>Forgot password?</Text>
+        <Text style={styles.forgotText}>{t("auth.forgotPassword")}</Text>
       </Pressable>
       {loading ? (
         <ActivityIndicator color={colors.emerald} style={{ marginVertical: 12 }} />
       ) : (
-        <PrimaryButton label="Sign in" onPress={() => void onEmailSubmit()} />
+        <PrimaryButton label={t("auth.signIn")} onPress={() => void onEmailSubmit()} />
       )}
 
       <Pressable
@@ -86,13 +92,14 @@ export function LoginScreen() {
         }
         style={styles.link}
       >
-        <Text style={styles.linkBold}>Register</Text>
+        <Text style={styles.linkBold}>{t("common.register")}</Text>
       </Pressable>
     </AuthScreenLayout>
   );
 }
 
 const styles = StyleSheet.create({
+  langRow: { alignItems: "flex-end", marginBottom: spacing.md },
   link: { marginTop: spacing.xl, alignItems: "center" },
   linkText: { fontSize: 14, color: colors.textMuted },
   linkBold: { color: colors.emerald, fontWeight: "700" },
